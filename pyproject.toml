@@ -38,6 +38,9 @@ Repository = "https://github.com/ywatanabe1989/scitex-audit"
 [project.entry-points."scitex_dev.docs"]
 scitex-audit = "scitex_audit"
 
+[project.entry-points."scitex_dev.skills"]
+scitex-audit = "scitex_audit"
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/scitex_audit"]
 
