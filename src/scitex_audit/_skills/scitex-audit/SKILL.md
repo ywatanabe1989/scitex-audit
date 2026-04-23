@@ -1,9 +1,12 @@
 ---
 name: scitex-audit
 description: Unified repo security scanner for scientific Python projects — one call orchestrates `bandit` (Python AST security linter), `shellcheck` (shell-script linter), `pip-audit` (Python dependency CVE scanner), and GitHub Security Advisory alerts, merging their findings into a single JSON report. Public API (1 symbol) — `audit(path: str = ".", checks: Optional[list[str]] = None, output_file: Optional[str] = None) -> dict` (`checks` picks a subset of backends; with `None` runs all available; returns `{checker: [findings]}`; optionally writes JSON to `output_file`). CLI entry — `scitex audit [path] [--checks bandit,shellcheck,pip-audit,github] [--output report.json]` (via parent `scitex` CLI). No MCP tools. Drop-in replacement for manually running `bandit -r .` + `shellcheck **/*.sh` + `pip-audit` + `gh api /repos/.../vulnerability-alerts` and stitching together four output formats, or configuring each tool separately in CI. Use whenever the user asks to "audit this repo for security issues", "run bandit on this project", "check Python deps for CVEs with pip-audit", "lint shell scripts with shellcheck", "merge security scan results into one report", "pull GitHub security advisories", or mentions `scitex audit`, `scitex.audit`, unified security scan.
+primary_interface: cli
 ---
 
 # scitex-audit
+
+> **Primary interface: CLI.** Reach for `scitex audit` first. Python API + MCP wrap the same commands for scripting / agent use.
 
 Single-entry security scanner. One `audit()` call dispatches across the
 installed checker backends and merges their findings.
