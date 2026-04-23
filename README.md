@@ -6,6 +6,13 @@ Unified security scanning for Python projects. Orchestrates
 [pip-audit](https://pypi.org/project/pip-audit/) (dependency vulnerabilities),
 and GitHub security alerts into a single report.
 
+## Problem and Solution
+
+
+| # | Problem | Solution |
+|---|---------|----------|
+| 1 | **Security scanning requires 4 tools run separately** -- `bandit` (py) + `shellcheck` (sh) + `pip-audit` (deps) + GH Advisories — each with different output format | **`scitex audit .`** -- runs all four, merges findings into one JSON report; ideal for CI pre-release gates |
+
 ## Installation
 
 ```bash
