@@ -6,6 +6,8 @@ Unified security scanning for Python projects. Orchestrates
 [pip-audit](https://pypi.org/project/pip-audit/) (dependency vulnerabilities),
 and GitHub security alerts into a single report.
 
+> **Interfaces:** Python ⭐ · CLI ⭐⭐⭐ (primary) · MCP ⭐ · Skills ⭐ · Hook — · HTTP —
+
 ## Problem and Solution
 
 
