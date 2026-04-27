@@ -25,10 +25,20 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "ruff",
+]
+docs = [
+    "sphinx>=7.0",
+    "sphinx-rtd-theme>=2.0",
+    "myst-parser>=2.0",
+    "sphinx-copybutton>=0.5",
+    "sphinx-autodoc-typehints>=1.25",
+]
 all = [
-    "bandit",
-    "pip-audit",
-    "click",
+    "scitex-audit[dev,docs]",
 ]
 
 [project.urls]
