@@ -26,6 +26,7 @@ classifiers = [
 
 [project.optional-dependencies]
 dev = [
+    "scitex-dev",
     "pytest",
     "pytest-cov",
     "ruff",
