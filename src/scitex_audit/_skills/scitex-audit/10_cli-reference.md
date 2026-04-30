@@ -1,3 +1,9 @@
+---
+name: cli-reference
+description: CLI Reference — see file body for details.
+tags: [scitex-audit, scitex-package]
+---
+
 # CLI Reference
 
 `scitex-audit` does not ship its own console-script entry point. The CLI

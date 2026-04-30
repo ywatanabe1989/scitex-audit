@@ -1,3 +1,9 @@
+---
+name: python-api
+description: Python API — see file body for details.
+tags: [scitex-audit, scitex-package]
+---
+
 # Python API
 
 The package exposes exactly one public symbol:

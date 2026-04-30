@@ -1,3 +1,9 @@
+---
+name: checkers
+description: Checker Backends — see file body for details.
+tags: [scitex-audit, scitex-package]
+---
+
 # Checker Backends
 
 Four independent checkers; each maps to one external tool.
