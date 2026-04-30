@@ -4,10 +4,10 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scitex-audit"
-version = "0.1.1"
+version = "0.1.3"
 description = "Unified security scanning by orchestrating bandit, shellcheck, pip-audit, and GitHub alerts"
 readme = "README.md"
-license = "AGPL-3.0"
+license = "AGPL-3.0-only"
 requires-python = ">=3.10"
 authors = [
     { name = "Yusuke Watanabe" },
@@ -15,7 +15,6 @@ authors = [
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -25,10 +24,21 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
+dev = [
+    "scitex-dev",
+    "pytest",
+    "pytest-cov",
+    "ruff",
+]
+docs = [
+    "sphinx>=7.0",
+    "sphinx-rtd-theme>=2.0",
+    "myst-parser>=2.0",
+    "sphinx-copybutton>=0.5",
+    "sphinx-autodoc-typehints>=1.25",
+]
 all = [
-    "bandit",
-    "pip-audit",
-    "click",
+    "scitex-audit[dev,docs]",
 ]
 
 [project.urls]
@@ -48,6 +58,9 @@ packages = ["src/scitex_audit"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-v --tb=short"
+
+[tool.scitex-linter]
+library_dirs = ["src", "tests", "examples"]
 
 [tool.ruff]
 target-version = "py310"
