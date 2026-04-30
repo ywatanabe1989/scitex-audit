@@ -17,7 +17,9 @@ Usage:
 from __future__ import annotations
 
 try:
-    from importlib.metadata import version as _v, PackageNotFoundError
+    from importlib.metadata import PackageNotFoundError
+    from importlib.metadata import version as _v
+
     try:
         __version__ = _v("scitex-audit")
     except PackageNotFoundError:
@@ -28,6 +30,6 @@ except ImportError:  # pragma: no cover — only on ancient Pythons
 
 from ._runner import audit
 
-__all__ = ["audit"]
+__all__ = ["__version__", "audit"]
 
 # EOF
