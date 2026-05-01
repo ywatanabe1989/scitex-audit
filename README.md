@@ -49,7 +49,7 @@ results = audit(".", checks=["python", "shell"])
 
 ## 2 Interfaces
 
-<details>
+<details open>
 <summary><strong>Python API</strong></summary>
 
 <br>
