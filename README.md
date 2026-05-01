@@ -81,7 +81,9 @@ scitex-audit . --json                   # machine-readable
 
 ## Part of SciTeX
 
-`scitex-audit` is part of [**SciTeX**](https://scitex.ai).
+`scitex-audit` is part of [**SciTeX**](https://scitex.ai). Install via
+the umbrella with `pip install scitex[audit]` to use as
+`scitex.audit` (Python) or `scitex audit ...` (CLI).
 
 >Four Freedoms for Research
 >
