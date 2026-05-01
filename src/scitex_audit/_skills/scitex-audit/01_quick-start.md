@@ -1,3 +1,9 @@
+---
+name: quick-start
+description: Quick Start — see file body for details.
+tags: [scitex-audit, scitex-package]
+---
+
 # Quick Start
 
 Run every available checker against the current directory:

@@ -9,6 +9,7 @@ interfaces:
   skills: 1
   hook: 0
   http: 0
+tags: [scitex-audit, scitex-package]
 ---
 
 # scitex-audit
