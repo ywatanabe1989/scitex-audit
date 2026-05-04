@@ -47,10 +47,11 @@ rule and empirical verification table.
 
 ### Core
 
-* [01_quick-start](01_quick-start.md) — Minimal usage, all checks / subset
-* [02_python-api](02_python-api.md) — `audit()` signature and result schema
-* [03_checkers](03_checkers.md) — The four checker backends
+* [01_installation](01_installation.md) — pip install + optional backends + verify
+* [02_quick-start](02_quick-start.md) — Minimal usage, all checks / subset
+* [03_python-api](03_python-api.md) — `audit()` signature and result schema
 
 ### Interface
 
 * [10_cli-reference](10_cli-reference.md) — `scitex audit` subcommand (via parent CLI)
+* [11_checkers](11_checkers.md) — The four checker backends
