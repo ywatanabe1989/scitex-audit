@@ -40,6 +40,30 @@ pip install scitex-audit
 pip install scitex-audit[all]
 ```
 
+## Architecture
+
+```
+src/scitex_audit/
+├── _runner.py        # orchestrates checks, aggregates results
+├── _bandit.py        # Python security scanner (bandit)
+├── _pip_audit.py     # dependency CVE scanner (pip-audit)
+├── _shellcheck.py    # shell script linter (shellcheck)
+├── _format.py        # human + JSON output formatting
+├── _github.py        # GitHub Actions annotation emitter
+└── _skills/          # SciTeX skills metadata
+```
+
+## Demo
+
+```mermaid
+flowchart LR
+    Repo[(repo)] --> Runner[scitex_audit.audit]
+    Runner --> B[bandit - Python]
+    Runner --> P[pip-audit - deps]
+    Runner --> S[shellcheck - shell]
+    B & P & S --> Fmt[_format] --> Out[CLI / JSON / GitHub annotations]
+```
+
 ## Quick Start
 
 ```python
