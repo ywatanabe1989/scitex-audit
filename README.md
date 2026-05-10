@@ -9,7 +9,7 @@
 <p align="center"><b>Unified security scanning: bandit + shellcheck + pip-audit + GitHub advisories in one report.</b></p>
 
 <p align="center">
-  <a href="https://scitex-audit.readthedocs.io/">Full Documentation</a> · <code>pip install scitex-audit</code>
+  <a href="https://scitex-audit.readthedocs.io/">Full Documentation</a> · <code>uv pip install scitex-audit[all]</code>
 </p>
 
 <!-- scitex-badges:start -->
