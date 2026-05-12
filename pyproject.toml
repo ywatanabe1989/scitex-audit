@@ -60,6 +60,11 @@ packages = ["src/scitex_audit"]
 testpaths = ["tests"]
 addopts = "-v --tb=short"
 
+[tool.coverage.run]
+parallel = true
+source = ["scitex_audit"]
+concurrency = ["multiprocessing", "thread"]
+
 [tool.scitex-linter]
 library_dirs = ["src", "tests", "examples"]
 
