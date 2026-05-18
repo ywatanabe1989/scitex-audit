@@ -1,7 +1,8 @@
 ---
-name: cli-reference
-description: CLI Reference — see file body for details.
-tags: [scitex-audit, scitex-package]
+description: |
+  [TOPIC] Cli Reference
+  [DETAILS] CLI Reference — see file body for details.
+tags: [scitex-audit-cli-reference]
 ---
 
 # CLI Reference

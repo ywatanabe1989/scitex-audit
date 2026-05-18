@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scitex-audit"
-version = "0.1.5"
+version = "0.1.6"
 description = "Unified security scanning by orchestrating bandit, shellcheck, pip-audit, and GitHub alerts"
 readme = "README.md"
 license = "AGPL-3.0-only"
@@ -25,7 +25,7 @@ classifiers = [
 
 [project.optional-dependencies]
 dev = [
-    "scitex-dev",
+    "scitex-dev>=0.11.7",
     "pytest",
     "pytest-cov",
     "ruff",
@@ -59,6 +59,11 @@ packages = ["src/scitex_audit"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-v --tb=short"
+
+[tool.coverage.run]
+parallel = true
+source = ["scitex_audit"]
+concurrency = ["multiprocessing", "thread"]
 
 [tool.scitex-linter]
 library_dirs = ["src", "tests", "examples"]

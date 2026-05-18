@@ -80,8 +80,8 @@ def run_github_check(repo: Optional[str] = None) -> dict:
 
     # Try to use scitex.security if available (optional dependency)
     try:
-        from scitex.security import GitHubSecurityError as _GSE
-        from scitex.security import check_github_alerts
+        from scitex_security import GitHubSecurityError as _GSE
+        from scitex_security import check_github_alerts
 
         try:
             alerts = check_github_alerts(repo)

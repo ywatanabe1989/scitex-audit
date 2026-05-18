@@ -1,0 +1,6 @@
+# scitex-dev local config — tracked in git.
+# See: scitex_dev/_skills/general/01_ecosystem_06_local-state-directories.md §1
+audit:
+  root-whitelist:
+    files:
+      - codecov.yml   # PS-103 whitelist: codecov config required at repo root.

@@ -1,7 +1,8 @@
 ---
-name: checkers
-description: Checker Backends — see file body for details.
-tags: [scitex-audit, scitex-package]
+description: |
+  [TOPIC] Checkers
+  [DETAILS] Checker Backends — see file body for details.
+tags: [scitex-audit-checkers]
 ---
 
 # Checker Backends

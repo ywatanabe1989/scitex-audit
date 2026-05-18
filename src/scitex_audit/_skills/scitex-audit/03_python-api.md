@@ -1,7 +1,8 @@
 ---
-name: python-api
-description: Python API — see file body for details.
-tags: [scitex-audit, scitex-package]
+description: |
+  [TOPIC] Python Api
+  [DETAILS] Python API — see file body for details.
+tags: [scitex-audit-python-api]
 ---
 
 # Python API
