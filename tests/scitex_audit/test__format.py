@@ -47,127 +47,316 @@ def sample_results():
     }
 
 
+@pytest.fixture
+def long_findings_results():
+    findings = [
+        {
+            "severity": "MED",
+            "file": f"f{i}.py",
+            "line": i,
+            "message": f"m{i}",
+        }
+        for i in range(8)
+    ]
+    return {
+        "python": {
+            "status": "findings",
+            "summary": "many",
+            "findings": findings,
+        }
+    }
+
+
 class TestFormatText:
-    def test_includes_each_check_name(self, sample_results):
-        out = format_text(sample_results)
-        # ANSI color codes may wrap names — check uppercase basenames appear
+    def test_format_text_includes_python_check_name(self, sample_results):
+        # Arrange
+        results = sample_results
+        # Act
+        out = format_text(results)
+        # Assert
         assert "PYTHON" in out
+
+    def test_format_text_includes_shell_check_name(self, sample_results):
+        # Arrange
+        results = sample_results
+        # Act
+        out = format_text(results)
+        # Assert
         assert "SHELL" in out
+
+    def test_format_text_includes_deps_check_name(self, sample_results):
+        # Arrange
+        results = sample_results
+        # Act
+        out = format_text(results)
+        # Assert
         assert "DEPS" in out
 
-    def test_renders_known_status_labels(self, sample_results):
-        out = format_text(sample_results)
+    def test_format_text_renders_findings_status_label(self, sample_results):
+        # Arrange
+        results = sample_results
+        # Act
+        out = format_text(results)
+        # Assert
         assert "FINDINGS" in out
+
+    def test_format_text_renders_ok_status_label(self, sample_results):
+        # Arrange
+        results = sample_results
+        # Act
+        out = format_text(results)
+        # Assert
         assert "OK" in out
+
+    def test_format_text_renders_skipped_status_label(self, sample_results):
+        # Arrange
+        results = sample_results
+        # Act
+        out = format_text(results)
+        # Assert
         assert "SKIPPED" in out
 
-    def test_includes_summary_and_finding_message(self, sample_results):
-        out = format_text(sample_results)
+    def test_format_text_includes_summary_string(self, sample_results):
+        # Arrange
+        results = sample_results
+        # Act
+        out = format_text(results)
+        # Assert
         assert "1 issue found" in out
+
+    def test_format_text_includes_finding_message_string(self, sample_results):
+        # Arrange
+        results = sample_results
+        # Act
+        out = format_text(results)
+        # Assert
         assert "use of assert" in out
 
-    def test_unknown_status_is_uppercased_not_swallowed(self):
-        out = format_text({"weird": {"status": "vroom", "summary": "x"}})
+    def test_format_text_uppercases_unknown_status_label(self):
+        # Arrange
+        weird_results = {"weird": {"status": "vroom", "summary": "x"}}
+        # Act
+        out = format_text(weird_results)
+        # Assert
         assert "VROOM" in out
 
-    def test_truncates_long_finding_lists(self):
-        # Build 8 findings — formatter caps at 5 + "and N more"
-        findings = [
-            {
-                "severity": "MED",
-                "file": f"f{i}.py",
-                "line": i,
-                "message": f"m{i}",
-            }
-            for i in range(8)
-        ]
-        out = format_text(
-            {
-                "python": {
-                    "status": "findings",
-                    "summary": "many",
-                    "findings": findings,
-                }
-            }
-        )
-        # 5 shown, 3 hidden behind "and 3 more"
-        assert "m0" in out and "m4" in out
+    def test_format_text_includes_first_message_in_long_finding_list(
+        self, long_findings_results
+    ):
+        # Arrange
+        results = long_findings_results
+        # Act
+        out = format_text(results)
+        # Assert
+        assert "m0" in out
+
+    def test_format_text_includes_fifth_message_in_long_finding_list(
+        self, long_findings_results
+    ):
+        # Arrange
+        results = long_findings_results
+        # Act
+        out = format_text(results)
+        # Assert
+        assert "m4" in out
+
+    def test_format_text_truncates_after_five_findings_with_summary(
+        self, long_findings_results
+    ):
+        # Arrange
+        results = long_findings_results
+        # Act
+        out = format_text(results)
+        # Assert
         assert "and 3 more" in out
 
 
 class TestFormatJson:
-    def test_returns_valid_json(self, sample_results):
-        out = format_json(sample_results)
-        parsed = json.loads(out)
+    def test_format_json_returns_parseable_json_dict(self, sample_results):
+        # Arrange
+        results = sample_results
+        # Act
+        parsed = json.loads(format_json(results))
+        # Assert
         assert isinstance(parsed, dict)
 
-    def test_envelope_shape(self, sample_results):
-        parsed = json.loads(format_json(sample_results))
+    def test_format_json_envelope_has_expected_top_level_keys(self, sample_results):
+        # Arrange
+        results = sample_results
+        # Act
+        parsed = json.loads(format_json(results))
+        # Assert
         assert set(parsed.keys()) == {"timestamp", "tool_versions", "results"}
-        assert parsed["results"] == sample_results
 
-    def test_timestamp_is_iso_with_tz(self, sample_results):
-        parsed = json.loads(format_json(sample_results))
-        ts = parsed["timestamp"]
-        assert "T" in ts
-        # tz-aware iso ends in +00:00 (utc) or Z
+    def test_format_json_results_field_equals_input_results(self, sample_results):
+        # Arrange
+        results = sample_results
+        # Act
+        parsed = json.loads(format_json(results))
+        # Assert
+        assert parsed["results"] == results
+
+    def test_format_json_timestamp_contains_iso_t_separator(self, sample_results):
+        # Arrange
+        results = sample_results
+        # Act
+        parsed = json.loads(format_json(results))
+        # Assert
+        assert "T" in parsed["timestamp"]
+
+    def test_format_json_timestamp_is_timezone_aware_iso_string(self, sample_results):
+        # Arrange
+        results = sample_results
+        # Act
+        ts = json.loads(format_json(results))["timestamp"]
+        # Assert
         assert ts.endswith("+00:00") or ts.endswith("Z")
 
 
 class TestFormatFindingLine:
-    def test_python_includes_severity_file_line_msg(self):
-        line = _format_finding_line(
-            "python",
-            {
-                "severity": "LOW",
-                "file": "a.py",
-                "line": 7,
-                "message": "no shebang",
-            },
-        )
+    def test_python_finding_line_includes_severity_token(self):
+        # Arrange
+        finding = {
+            "severity": "LOW",
+            "file": "a.py",
+            "line": 7,
+            "message": "no shebang",
+        }
+        # Act
+        line = _format_finding_line("python", finding)
+        # Assert
         assert "LOW" in line
+
+    def test_python_finding_line_includes_file_and_line_colon_pair(self):
+        # Arrange
+        finding = {
+            "severity": "LOW",
+            "file": "a.py",
+            "line": 7,
+            "message": "no shebang",
+        }
+        # Act
+        line = _format_finding_line("python", finding)
+        # Assert
         assert "a.py:7" in line
+
+    def test_python_finding_line_includes_message_string(self):
+        # Arrange
+        finding = {
+            "severity": "LOW",
+            "file": "a.py",
+            "line": 7,
+            "message": "no shebang",
+        }
+        # Act
+        line = _format_finding_line("python", finding)
+        # Assert
         assert "no shebang" in line
 
-    def test_shell_renders_sc_code(self):
-        line = _format_finding_line(
-            "shell",
-            {
-                "level": "warning",
-                "file": "build.sh",
-                "line": 3,
-                "code": "2086",
-                "message": "double-quote",
-            },
-        )
+    def test_shell_finding_line_includes_level_label(self):
+        # Arrange
+        finding = {
+            "level": "warning",
+            "file": "build.sh",
+            "line": 3,
+            "code": "2086",
+            "message": "double-quote",
+        }
+        # Act
+        line = _format_finding_line("shell", finding)
+        # Assert
         assert "warning" in line
+
+    def test_shell_finding_line_includes_file_and_line_colon_pair(self):
+        # Arrange
+        finding = {
+            "level": "warning",
+            "file": "build.sh",
+            "line": 3,
+            "code": "2086",
+            "message": "double-quote",
+        }
+        # Act
+        line = _format_finding_line("shell", finding)
+        # Assert
         assert "build.sh:3" in line
+
+    def test_shell_finding_line_prefixes_code_with_sc_namespace(self):
+        # Arrange
+        finding = {
+            "level": "warning",
+            "file": "build.sh",
+            "line": 3,
+            "code": "2086",
+            "message": "double-quote",
+        }
+        # Act
+        line = _format_finding_line("shell", finding)
+        # Assert
         assert "SC2086" in line
+
+    def test_shell_finding_line_includes_message_string(self):
+        # Arrange
+        finding = {
+            "level": "warning",
+            "file": "build.sh",
+            "line": 3,
+            "code": "2086",
+            "message": "double-quote",
+        }
+        # Act
+        line = _format_finding_line("shell", finding)
+        # Assert
         assert "double-quote" in line
 
-    def test_deps_uses_package_version_vulnid(self):
-        line = _format_finding_line(
-            "deps",
-            {
-                "package": "requests",
-                "version": "2.0.0",
-                "vuln_id": "GHSA-x",
-            },
-        )
+    def test_deps_finding_line_uses_pip_style_package_double_equals_version(
+        self,
+    ):
+        # Arrange
+        finding = {
+            "package": "requests",
+            "version": "2.0.0",
+            "vuln_id": "GHSA-x",
+        }
+        # Act
+        line = _format_finding_line("deps", finding)
+        # Assert
         assert "requests==2.0.0" in line
+
+    def test_deps_finding_line_includes_vulnerability_id(self):
+        # Arrange
+        finding = {
+            "package": "requests",
+            "version": "2.0.0",
+            "vuln_id": "GHSA-x",
+        }
+        # Act
+        line = _format_finding_line("deps", finding)
+        # Assert
         assert "GHSA-x" in line
 
-    def test_github_uses_category_summary(self):
-        line = _format_finding_line(
-            "github",
-            {"category": "secret-scanning", "summary": "AWS key leaked"},
-        )
+    def test_github_finding_line_includes_category_token(self):
+        # Arrange
+        finding = {"category": "secret-scanning", "summary": "AWS key leaked"}
+        # Act
+        line = _format_finding_line("github", finding)
+        # Assert
         assert "secret-scanning" in line
+
+    def test_github_finding_line_includes_summary_text(self):
+        # Arrange
+        finding = {"category": "secret-scanning", "summary": "AWS key leaked"}
+        # Act
+        line = _format_finding_line("github", finding)
+        # Assert
         assert "AWS key leaked" in line
 
-    def test_unknown_check_falls_back_to_str(self):
+    def test_unknown_check_kind_falls_back_to_repr_of_finding(self):
+        # Arrange
         finding = {"x": 1}
+        # Act
         line = _format_finding_line("mystery", finding)
+        # Assert
         assert line == str(finding)
 
 
