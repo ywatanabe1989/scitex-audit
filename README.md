@@ -16,12 +16,12 @@
 <p align="center">
   <a href="https://pypi.org/project/scitex-audit/"><img src="https://img.shields.io/pypi/v/scitex-audit?label=pypi" alt="pypi"></a>
   <a href="https://pypi.org/project/scitex-audit/"><img src="https://img.shields.io/pypi/pyversions/scitex-audit?label=python" alt="python"></a>
-  <a href="https://github.com/ywatanabe1989/scitex-audit/actions/workflows/rtd-sphinx-build-on-ubuntu-latest.yml"><img src="https://img.shields.io/github/actions/workflow/status/ywatanabe1989/scitex-audit/rtd-sphinx-build-on-ubuntu-latest.yml?branch=develop&label=docs" alt="docs"></a>
+  <a href="https://scitex-audit.readthedocs.io/"><img src="https://img.shields.io/readthedocs/scitex-audit" alt="docs"></a>
 </p>
 <p align="center">
   <a href="https://github.com/ywatanabe1989/scitex-audit/actions/workflows/pytest-matrix-on-ubuntu-py3-11-3-12-3-13.yml"><img src="https://img.shields.io/github/actions/workflow/status/ywatanabe1989/scitex-audit/pytest-matrix-on-ubuntu-py3-11-3-12-3-13.yml?branch=develop&label=tests" alt="tests"></a>
+  <a href="https://github.com/ywatanabe1989/scitex-audit/actions/workflows/import-smoke-on-ubuntu-py3-12.yml"><img src="https://img.shields.io/github/actions/workflow/status/ywatanabe1989/scitex-audit/import-smoke-on-ubuntu-py3-12.yml?branch=develop&label=install%20test" alt="install-test"></a>
   <a href="https://codecov.io/gh/ywatanabe1989/scitex-audit"><img src="https://img.shields.io/codecov/c/github/ywatanabe1989/scitex-audit/develop?label=cov" alt="cov"></a>
-  <a href="https://www.gnu.org/licenses/agpl-3.0"><img src="https://img.shields.io/badge/license-AGPL_v3-blue.svg" alt="License: AGPL v3"></a>
 </p>
 <!-- scitex-badges:end -->
 
@@ -31,17 +31,40 @@
 
 | # | Problem | Solution |
 |---|---------|----------|
-| 1 | **Security scanning requires 4 tools run separately** — `bandit` (py) + `shellcheck` (sh) + `pip-audit` (deps) + GH Advisories — each with different output format | **`scitex-audit .`** — runs all four, merges findings into one JSON report; ideal for CI pre-release gates |
+| 1 | **4 security tools, different outputs** — bandit (py) + shellcheck (sh) + pip-audit (deps) + GH Advisories each speak their own format; no unified report | **`scitex-audit .`** — runs all four, merges findings into one JSON report; ideal for CI pre-release gates |
+
+## Quick Start
+
+```python
+from scitex_audit import audit
+
+# Run all scanners on the current directory.
+results = audit(".")
+
+# Run only specific scanners.
+results = audit(".", checks=["python", "shell"])
+
+# Or from the CLI:
+# $ scitex-audit . --json > report.json
+```
 
 ## Installation
 
 ```bash
-pip install scitex-audit
-# With all scanner backends:
-pip install scitex-audit[all]
+uv pip install "scitex-audit[all]"
 ```
 
 ## Architecture
+
+```mermaid
+flowchart LR
+    Repo[(repo)] --> Runner[scitex_audit.audit]
+    Runner --> B[bandit - Python]
+    Runner --> P[pip-audit - deps]
+    Runner --> S[shellcheck - shell]
+    B & P & S --> Fmt[_format] --> Out[CLI / JSON / GitHub annotations]
+```
+<sub><b>Figure 1.</b> Unified scanning pipeline — one entry point dispatches to four backends and merges results into a single report.</sub>
 
 ```
 src/scitex_audit/
@@ -52,26 +75,6 @@ src/scitex_audit/
 ├── _format.py        # human + JSON output formatting
 ├── _github.py        # GitHub Actions annotation emitter
 └── _skills/          # SciTeX skills metadata
-```
-
-## Demo
-
-```mermaid
-flowchart LR
-    Repo[(repo)] --> Runner[scitex_audit.audit]
-    Runner --> B[bandit - Python]
-    Runner --> P[pip-audit - deps]
-    Runner --> S[shellcheck - shell]
-    B & P & S --> Fmt[_format] --> Out[CLI / JSON / GitHub annotations]
-```
-
-## Quick Start
-
-```python
-from scitex_audit import audit
-
-results = audit(".")
-results = audit(".", checks=["python", "shell"])
 ```
 
 ## 2 Interfaces

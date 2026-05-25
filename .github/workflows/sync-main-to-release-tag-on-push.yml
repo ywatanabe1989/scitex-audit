@@ -1,0 +1,47 @@
+name: sync main → release tag
+
+# Branch-protection-friendly release shim: on every version tag, ensure a
+# develop→main PR exists so that main always reflects the latest released
+# commit. This separate workflow keeps the PyPI publish workflow focused
+# on publishing alone.
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync-main:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0
+
+      - name: Open or update develop→main PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Check if a PR from develop to main already exists.
+          EXISTING=$(gh pr list \
+            --head develop \
+            --base main \
+            --state open \
+            --json number \
+            --jq '.[0].number' 2>/dev/null || echo "")
+
+          if [ -n "$EXISTING" ]; then
+            echo "develop→main PR #${EXISTING} already exists — skipping."
+          else
+            gh pr create \
+              --base main \
+              --head develop \
+              --title "chore: sync develop → main ($(git describe --tags --abbrev=0 2>/dev/null || echo 'release'))" \
+              --body "Automated release sync triggered by tag push." \
+              --label automated
+          fi
