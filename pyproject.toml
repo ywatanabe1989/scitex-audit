@@ -55,6 +55,7 @@ scitex-audit = "scitex_audit"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/scitex_audit"]
+force-include = { "src/scitex_audit/_sphinx_html" = "scitex_audit/_sphinx_html" }
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
