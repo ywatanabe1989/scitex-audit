@@ -1,4 +1,8 @@
-"""Enforces SciTeX skills quality checklist §1–§4."""
+"""Enforces SciTeX skills quality checklist §1–§4.
+
+# PS-206b: import-smoke-allowed — dynamically generates test functions
+# via scitex_dev._skills_quality_pytest.make_skill_quality_tests().
+"""
 
 from pathlib import Path
 
