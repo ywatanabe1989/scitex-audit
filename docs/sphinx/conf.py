@@ -33,6 +33,10 @@ extensions = [
     "sphinx_autodoc_typehints",
 ]
 
+suppress_warnings = [
+    "autodoc",
+]
+
 autodoc_default_options = {
     "members": True,
     "member-order": "bysource",
