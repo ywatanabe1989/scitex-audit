@@ -55,7 +55,15 @@ scitex-audit = "scitex_audit"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/scitex_audit"]
-force-include = { "src/scitex_audit/_sphinx_html" = "scitex_audit/_sphinx_html" }
+# NOTE: a previous force-include entry for src/scitex_audit/_sphinx_html
+# was removed because `packages = ["src/scitex_audit"]` already includes
+# every file under src/scitex_audit/ (including the bundled
+# _sphinx_html/ tree). The force-include duplicated each html file in
+# the wheel, which hatchling now rejects:
+#   ValueError: A second file is being added to the wheel archive at
+#   the same path: `scitex_audit/_sphinx_html/genindex.html`.
+# Sphinx HTML still ships with the wheel via the implicit package
+# inclusion; see the W1 release v0.2.0 publish failure for context.
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
