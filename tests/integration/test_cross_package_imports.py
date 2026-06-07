@@ -24,8 +24,6 @@ import pytest
 # added so the gate sees the self-imports introduced by the new public
 # submodule + CLI surface.
 CROSS_PACKAGE_IMPORTS = [
-    "scitex_audit",
-    "scitex_audit.cli",
     "scitex_dev._cli._completion",
 ]
 # ===== END AUTO-GENERATED =====
