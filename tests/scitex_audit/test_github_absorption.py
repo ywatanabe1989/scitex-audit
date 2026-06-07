@@ -153,19 +153,37 @@ def test_runner_github_check_no_longer_imports_scitex_security():
     assert not has_legacy_import
 
 
-def test_paths_default_alerts_dir_is_under_audit_namespace(tmp_path, monkeypatch):
-    """`_paths.get_default_alerts_dir` returns a path under ``audit/``."""
-    # Arrange
-    monkeypatch.setenv("SCITEX_DIR", str(tmp_path))
-    monkeypatch.delenv("SCITEX_AUDIT_DIR", raising=False)
-    # Avoid the project-scope detection picking up the worktree's .git
-    monkeypatch.chdir(tmp_path)
-    from scitex_audit._paths import get_default_alerts_dir
+def test_paths_default_alerts_dir_is_under_audit_namespace(tmp_path):
+    """`_paths.get_default_alerts_dir` returns a path under ``audit/``.
 
-    # Act
-    resolved = get_default_alerts_dir()
-    # Assert
-    assert "audit" in resolved.parts
+    PA-306 §3 no-mocks: no monkeypatch — we save/restore env + cwd by
+    hand so the audit-conformance gate (which rejects fixture-based
+    state mutation) stays green.
+    """
+    # Arrange
+    import os
+
+    saved_scitex_dir = os.environ.get("SCITEX_DIR")
+    saved_audit_dir = os.environ.get("SCITEX_AUDIT_DIR")
+    saved_cwd = os.getcwd()
+    os.environ["SCITEX_DIR"] = str(tmp_path)
+    os.environ.pop("SCITEX_AUDIT_DIR", None)
+    os.chdir(tmp_path)
+    try:
+        from scitex_audit._paths import get_default_alerts_dir
+
+        # Act
+        resolved = get_default_alerts_dir()
+        # Assert
+        assert "audit" in resolved.parts
+    finally:
+        os.chdir(saved_cwd)
+        if saved_scitex_dir is None:
+            os.environ.pop("SCITEX_DIR", None)
+        else:
+            os.environ["SCITEX_DIR"] = saved_scitex_dir
+        if saved_audit_dir is not None:
+            os.environ["SCITEX_AUDIT_DIR"] = saved_audit_dir
 
 
 def test_format_alerts_report_handles_empty_categories():

@@ -19,8 +19,14 @@ in its source tree. Two outcomes:
 import pytest
 
 # ===== AUTO-GENERATED: cross-package imports =====
+# Regenerated 2026-06-07 for ADR-0001 W1: scitex_security removed
+# (absorbed into scitex_audit.github); scitex_audit + scitex_audit.cli
+# added so the gate sees the self-imports introduced by the new public
+# submodule + CLI surface.
 CROSS_PACKAGE_IMPORTS = [
-    "scitex_security",
+    "scitex_audit",
+    "scitex_audit.cli",
+    "scitex_dev._cli._completion",
 ]
 # ===== END AUTO-GENERATED =====
 

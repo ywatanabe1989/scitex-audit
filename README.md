@@ -109,6 +109,17 @@ scitex-audit . --json                   # machine-readable
 
 </details>
 
+## Environment Variables
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `SCITEX_AUDIT_DIR` | `~/.scitex/audit/github-alerts/runtime/` (or `<git-root>/.scitex/audit/github-alerts/runtime/` when invoked from inside a git repo) | Where GitHub-alerts reports are written when `scitex-audit github check --save` is used. Honoured verbatim — no `audit/` subdir is appended on top of an explicit path. |
+| `SCITEX_DIR` | `~/.scitex` | User-scope SciTeX root. Used as the parent of the `audit/` subtree when `SCITEX_AUDIT_DIR` is not set. |
+| `SCITEX_AUDIT_CONFIG` | `~/.scitex/audit/config.yaml` | Optional config-file override (mentioned for parity with sibling scitex-* packages; reserved). |
+| `GH_TOKEN` / `GITHUB_TOKEN` | — | Picked up by the `gh` CLI for GitHub API auth. Standard `gh` behaviour; not a scitex-audit-specific knob. |
+
+The legacy `~/.scitex/security/` directory (from scitex-security 0.1.x, absorbed per ADR-0001 in scitex-dev #139) is auto-symlinked into `~/.scitex/audit/github-alerts/` on first import of `scitex_audit` — no manual user step.
+
 ## Part of SciTeX
 
 `scitex-audit` is part of [**SciTeX**](https://scitex.ai). Install via
