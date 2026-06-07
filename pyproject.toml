@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "scitex-audit"
-version = "0.1.7"
+version = "0.2.0"
 description = "Unified security scanning by orchestrating bandit, shellcheck, pip-audit, and GitHub alerts"
 readme = "README.md"
 license = "AGPL-3.0-only"
@@ -22,6 +22,12 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Topic :: Security",
 ]
+dependencies = [
+    "click>=8.0",
+]
+
+[project.scripts]
+scitex-audit = "scitex_audit.cli:main"
 
 [project.optional-dependencies]
 dev = [

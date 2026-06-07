@@ -2,28 +2,39 @@
 # File: src/scitex_audit/_github.py
 
 """
-GitHub security alerts checker.
+GitHub security alerts orchestrator (audit-runner adapter).
 
-Uses gh CLI directly instead of depending on scitex.security.
-Falls back gracefully if scitex.security is available.
+Thin adapter that turns the native ``scitex_audit.github.check_github_alerts``
+result into the unified ``{status, findings, summary}`` envelope every
+audit-runner check returns. Per ADR-0001 (scitex-dev #139, Accepted
+2026-06-07), this module no longer imports ``scitex_security`` — that
+package was absorbed and the canonical implementation lives in
+``scitex_audit.github``.
+
+Repo discovery (``_get_current_repo``) stays here because it's purely
+an audit-runner concern (the public ``check_github_alerts`` accepts a
+caller-supplied ``repo`` argument).
 """
 
 from __future__ import annotations
 
-import json
 import logging
 import subprocess
 from typing import Optional
 
+# Re-export so any pre-absorption caller of
+# ``from scitex_audit._github import GitHubSecurityError`` still works
+# without touching the new public submodule.
+from .github import GitHubSecurityError, check_github_alerts
+
 logger = logging.getLogger(__name__)
 
 
-class GitHubSecurityError(Exception):
-    """Error fetching GitHub security data."""
+__all__ = ["GitHubSecurityError", "run_github_check"]
 
 
 def _get_current_repo() -> Optional[str]:
-    """Detect the current GitHub repository from git remote."""
+    """Detect the current GitHub repository from the local git remote."""
     try:
         result = subprocess.run(
             ["gh", "repo", "view", "--json", "nameWithOwner", "-q", ".nameWithOwner"],
@@ -38,36 +49,26 @@ def _get_current_repo() -> Optional[str]:
     return None
 
 
-def _fetch_alerts(repo: str, alert_type: str) -> list[dict]:
-    """Fetch alerts of a given type from GitHub API."""
-    try:
-        result = subprocess.run(
-            ["gh", "api", f"repos/{repo}/{alert_type}", "--paginate"],
-            capture_output=True,
-            text=True,
-            timeout=30,
-        )
-        if result.returncode == 0 and result.stdout.strip():
-            data = json.loads(result.stdout)
-            if isinstance(data, list):
-                return data
-    except Exception as exc:
-        logger.debug("Failed to fetch %s alerts: %s", alert_type, exc)
-    return []
-
-
 def run_github_check(repo: Optional[str] = None) -> dict:
-    """Fetch GitHub security alerts and return normalized results.
+    """Fetch GitHub security alerts and return the unified audit envelope.
 
     Parameters
     ----------
     repo : str | None
-        Repository in "owner/repo" format. None uses the current repo.
+        Repository in ``"owner/repo"`` format. ``None`` uses the current
+        repo (detected from the local ``gh`` remote).
 
     Returns
     -------
     dict
-        {status, findings, summary} in the standard audit format.
+        ``{status, findings, summary}`` in the standard audit format.
+
+        - ``status="error"`` — repo not detectable, or
+          ``GitHubSecurityError`` from the native checker (typically
+          unauthenticated ``gh``).
+        - ``status="ok"`` — zero open alerts.
+        - ``status="findings"`` — one or more open alerts; ``findings``
+          is a flat list of ``{category, ...}`` dicts.
     """
     if repo is None:
         repo = _get_current_repo()
@@ -78,57 +79,24 @@ def run_github_check(repo: Optional[str] = None) -> dict:
                 "summary": "Could not determine current repository",
             }
 
-    # Try to use scitex.security if available (optional dependency)
     try:
-        from scitex_security import GitHubSecurityError as _GSE
-        from scitex_security import check_github_alerts
+        alerts = check_github_alerts(repo)
+    except GitHubSecurityError as exc:
+        return {"status": "error", "findings": [], "summary": str(exc)}
 
-        try:
-            alerts = check_github_alerts(repo)
-        except _GSE as exc:
-            return {"status": "error", "findings": [], "summary": str(exc)}
+    total = sum(len(v) for v in alerts.values())
+    findings: list[dict] = []
+    for category, items in alerts.items():
+        for item in items:
+            findings.append({"category": category, **item})
 
-        total = sum(len(v) for v in alerts.values())
-        findings = []
-        for category, items in alerts.items():
-            for item in items:
-                findings.append({"category": category, **item})
+    if total == 0:
+        return {"status": "ok", "findings": [], "summary": "No open alerts"}
 
-        if total == 0:
-            return {"status": "ok", "findings": [], "summary": "No open alerts"}
+    parts = [f"{len(alerts[k])} {k}" for k in alerts if alerts[k]]
+    summary = f"{total} alerts ({', '.join(parts)})"
 
-        parts = [f"{len(alerts[k])} {k}" for k in alerts if alerts[k]]
-        summary = f"{total} alerts ({', '.join(parts)})"
-
-        return {"status": "findings", "findings": findings, "summary": summary}
-
-    except ImportError:
-        # Standalone mode: use gh CLI directly
-        alert_types = {
-            "dependabot": "dependabot/alerts?state=open",
-            "code-scanning": "code-scanning/alerts?state=open",
-            "secret-scanning": "secret-scanning/alerts?state=open",
-        }
-
-        findings = []
-        for category, endpoint in alert_types.items():
-            alerts = _fetch_alerts(repo, endpoint)
-            for alert in alerts:
-                findings.append({
-                    "category": category,
-                    "summary": alert.get("security_advisory", {}).get("summary", "")
-                    or alert.get("rule", {}).get("description", "")
-                    or alert.get("secret_type_display_name", ""),
-                    "severity": alert.get("security_advisory", {}).get("severity", "")
-                    or alert.get("rule", {}).get("severity", ""),
-                    "url": alert.get("html_url", ""),
-                })
-
-        if not findings:
-            return {"status": "ok", "findings": [], "summary": "No open alerts"}
-
-        summary = f"{len(findings)} alerts"
-        return {"status": "findings", "findings": findings, "summary": summary}
+    return {"status": "findings", "findings": findings, "summary": summary}
 
 
 # EOF
